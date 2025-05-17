@@ -2,47 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:myapp/features/rides/presentation/screens/your_rides.dart';
 
 class Material3BottomNav extends StatefulWidget {
-  const Material3BottomNav({Key? key}) : super(key: key);
+  const Material3BottomNav({super.key});
 
   @override
   State<Material3BottomNav> createState() => _Material3BottomNavState();
 }
 
-/* class _Material3BottomNavState extends State<Material3BottomNav> {
-  int _selectedIndex = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: NavigationBar(
-        animationDuration: const Duration(seconds: 1),
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        destinations: _navBarItems,
-      ),
-    );
-  }
-} */
-
 class _Material3BottomNavState extends State<Material3BottomNav> {
   int _selectedIndex = 0;
 
-  final List<Widget> _screens = [
-    YourRidesScreen(),
-    YourRidesScreen(),
-    YourRidesScreen(),
-    YourRidesScreen(),
-    YourRidesScreen(),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: _selectedIndex, children: _screens),
       bottomNavigationBar: NavigationBar(
         animationDuration: const Duration(seconds: 1),
         selectedIndex: _selectedIndex,

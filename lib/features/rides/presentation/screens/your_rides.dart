@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myapp/core/widgets/bottom_bar.dart'; // Import the Material3BottomNav
 
 class YourRidesScreen extends StatelessWidget {
-  const YourRidesScreen({Key? key}) : super(key: key);
+  const YourRidesScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

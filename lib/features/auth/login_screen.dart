@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
-import 'package:myapp/features/rides/presentation/screens/your_rides.dart';
+import 'package:myapp/features/rides/your_rides.dart';
 
 const users = {'dribbble@gmail.com': '12345', 'hunter@gmail.com': 'hunter'};
 

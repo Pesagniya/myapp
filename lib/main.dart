@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'features/auth/presentation/screens/login_screen.dart';
+import 'package:myapp/core/widgets/bottom_bar.dart';
+import 'features/auth/login_screen.dart';
 import 'package:reactive_theme/reactive_theme.dart';
 
 void main() async {
@@ -13,6 +14,9 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key, required this.savedThemeMode});
 
   final ThemeMode? savedThemeMode;
+
+  final isLoggedIn = true;
+  /* change this */
 
   @override
   Widget build(BuildContext context) {
@@ -33,10 +37,10 @@ class MyApp extends StatelessWidget {
             darkTheme: ThemeData(
               colorScheme: ColorScheme.fromSeed(
                 brightness: Brightness.dark,
-                seedColor: Colors.red,
+                seedColor: Colors.orange,
               ),
             ),
-            home: const LoginScreen(),
+            home: isLoggedIn ? const Material3BottomNav() : const LoginScreen(),
           ),
     );
   }

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/features/rides/presentation/screens/your_rides.dart';
+import 'package:myapp/features/chat/chat.dart';
+import 'package:myapp/features/offer/post_ride.dart';
+import 'package:myapp/features/profile/your_profile.dart';
+import 'package:myapp/features/rides/your_rides.dart';
+import 'package:myapp/features/search/search_ride.dart';
 
 class Material3BottomNav extends StatefulWidget {
   const Material3BottomNav({super.key});
@@ -11,9 +15,18 @@ class Material3BottomNav extends StatefulWidget {
 class _Material3BottomNavState extends State<Material3BottomNav> {
   int _selectedIndex = 0;
 
+  final List _pages = [
+    YourRidesScreen(),
+    SearchRidesScreen(),
+    PostRidesScreen(),
+    ChatScreen(),
+    ProfileScreen(),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      body: _pages[_selectedIndex],
       bottomNavigationBar: NavigationBar(
         animationDuration: const Duration(seconds: 1),
         selectedIndex: _selectedIndex,

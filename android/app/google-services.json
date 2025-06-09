@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1028414827330",
+    "project_id": "fatec-ride-e6fa3",
+    "storage_bucket": "fatec-ride-e6fa3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1028414827330:android:fd90fa8cb94dd88ff036db",
+        "android_client_info": {
+          "package_name": "com.example.myapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0_C9ffK2xhTFUmOzPDX07Q7BBGmOJUCk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

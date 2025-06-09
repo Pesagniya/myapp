@@ -1,9 +1,13 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/core/widgets/bottom_bar.dart';
+import 'package:myapp/firebase_options.dart';
 import 'features/auth/login_screen.dart';
 import 'package:reactive_theme/reactive_theme.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   //Get the saved thememode here
   final thememode = await ReactiveMode.getSavedThemeMode();
   // then pass it to the MyApp()
@@ -15,8 +19,7 @@ class MyApp extends StatelessWidget {
 
   final ThemeMode? savedThemeMode;
 
-  final isLoggedIn = true;
-  /* change this */
+  final isLoggedIn = false; // TODO: replace with actual login check
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +43,8 @@ class MyApp extends StatelessWidget {
                 seedColor: Colors.orange,
               ),
             ),
-            home: isLoggedIn ? const Material3BottomNav() : const LoginScreen(),
+            // home: isLoggedIn ? const Material3BottomNav() : const LoginScreen(),
+            home: const Material3BottomNav(),
           ),
     );
   }

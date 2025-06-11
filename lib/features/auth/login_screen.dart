@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_login/flutter_login.dart';
-import 'package:myapp/features/rides/your_rides.dart';
+import 'package:myapp/core/widgets/bottom_bar.dart';
 import 'package:myapp/features/auth/auth_service.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -8,16 +8,17 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AuthService authService = AuthService();
     return FlutterLogin(
       logo: const AssetImage('assets/images/trademark.png'),
-      onLogin: AuthService.authUser,
-      onSignup: AuthService.signupUser,
+      onLogin: authService.authUser,
+      onSignup: authService.signupUser,
       onSubmitAnimationCompleted: () {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const YourRidesScreen()),
+          MaterialPageRoute(builder: (context) => Material3BottomNav()),
         );
       },
-      onRecoverPassword: AuthService.recoverPassword,
+      onRecoverPassword: authService.recoverPassword,
       theme: LoginTheme(logoWidth: 100, primaryColor: Colors.red),
     );
   }

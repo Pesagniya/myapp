@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 
 class MyTextField extends StatelessWidget {
-  final String hintText;
-  final TextEditingController controller;
+  final String? labelText;
+  final String? hintText;
+  final TextEditingController? controller;
+  final TextAlign textAlign;
+  final bool enabled;
 
   const MyTextField({
     super.key,
-    required this.hintText,
-    required this.controller,
+    this.labelText,
+    this.hintText,
+    this.textAlign = TextAlign.start,
+    this.controller,
+    this.enabled = true,
   });
 
   @override
@@ -16,7 +22,11 @@ class MyTextField extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 25.0),
       child: TextField(
         controller: controller,
+        textAlign: textAlign,
+        enabled: enabled,
         decoration: InputDecoration(
+          labelText: labelText,
+          labelStyle: TextStyle(color: Theme.of(context).colorScheme.primary),
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(
               color: Theme.of(context).colorScheme.secondary,
@@ -28,8 +38,14 @@ class MyTextField extends StatelessWidget {
             ),
           ),
           hintText: hintText,
+          hintStyle: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface.withAlpha(150),
+          ),
           filled: true,
-          fillColor: Theme.of(context).colorScheme.primary.withAlpha(10),
+          fillColor:
+              enabled
+                  ? Theme.of(context).colorScheme.primary.withAlpha(10)
+                  : Theme.of(context).colorScheme.onSurface.withAlpha(17),
         ),
       ),
     );

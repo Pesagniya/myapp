@@ -1,10 +1,9 @@
-import 'dart:io';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:myapp/features/profile/profile_model.dart';
+import 'package:myapp/features/profile/profile_service.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:myapp/core/widgets/button.dart';
+import 'package:myapp/core/widgets/dropdown.dart';
 import 'package:myapp/core/widgets/textfield.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -15,129 +14,162 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  File? _image;
-  final picker = ImagePicker();
+  final ProfileService _profileService = ProfileService();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  String? userEmail;
-  String? photoUrl;
-
+  late Profile profile;
   final nameController = TextEditingController();
-  final cursoController = TextEditingController();
   final carroController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    fetchUserData();
+    _loadUserData();
   }
 
-  Future<void> fetchUserData() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
-    final doc =
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .get();
-    final data = doc.data();
-
-    setState(() {
-      userEmail = user.email;
-      nameController.text = data?['name'] ?? '';
-      cursoController.text = data?['curso'] ?? '';
-      carroController.text = data?['carro'] ?? '';
-      photoUrl = data?['photoUrl'];
-    });
-  }
-
-  Future<void> pickImage() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
+  Future<void> _loadUserData() async {
+    final data = await _profileService.fetchUserProfile();
+    if (data != null) {
       setState(() {
-        _image = File(pickedFile.path);
+        profile = data;
+        nameController.text = profile.name!;
+        carroController.text = profile.carro!;
       });
     }
   }
 
-  Future<String?> uploadImage(File imageFile, String uid) async {
-    final ref = FirebaseStorage.instance
-        .ref()
-        .child('profile_photos')
-        .child('$uid.jpg');
-    await ref.putFile(imageFile);
-    return await ref.getDownloadURL();
+  Future<void> pickImage() async {
+    final newPhotoUrl = await _profileService.uploadProfilePhoto();
+    if (newPhotoUrl != null) {
+      setState(() {
+        profile = profile.copyWith(photoUrl: newPhotoUrl);
+      });
+    }
   }
 
-  Future<void> saveChanges() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
+  Future<void> saveProfile() async {
+    setState(() {
+      profile = profile.copyWith(
+        name: nameController.text,
+        carro: carroController.text,
+      );
+    });
 
-    String? uploadedPhotoUrl = photoUrl;
-    if (_image != null) {
-      uploadedPhotoUrl = await uploadImage(_image!, user.uid);
+    await _profileService.saveProfile(profile);
+    if (mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Perfil salvo com sucesso!')));
     }
+  }
 
-    await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-      'email': user.email,
-      'name': nameController.text.trim(),
-      'curso': cursoController.text.trim(),
-      'carro': carroController.text.trim(),
-      'photoUrl': uploadedPhotoUrl,
-    }, SetOptions(merge: true));
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Perfil atualizado com sucesso!")),
-    );
+  @override
+  void dispose() {
+    nameController.dispose();
+    carroController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Perfil")),
       body: SingleChildScrollView(
         child: Column(
           children: [
             const SizedBox(height: 30),
             GestureDetector(
               onTap: pickImage,
-              child: CircleAvatar(
-                radius: 60,
-                backgroundImage:
-                    _image != null
-                        ? FileImage(_image!)
-                        : (photoUrl != null
-                            ? NetworkImage(photoUrl!) as ImageProvider
-                            : null),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
                 child:
-                    _image == null && photoUrl == null
-                        ? const Icon(Icons.person, size: 60)
-                        : null,
+                    profile.photoUrl != null
+                        ? Image.network(
+                          profile.photoUrl!,
+                          width: 120,
+                          height: 160,
+                          fit: BoxFit.cover,
+                        )
+                        : Image.asset(
+                          'assets/images/default_pp.png',
+                          width: 120,
+                          height: 160,
+                          fit: BoxFit.cover,
+                        ),
+                // needed null protection here
               ),
             ),
             const SizedBox(height: 10),
             Text(
-              userEmail ?? 'Carregando...',
+              _auth.currentUser!.email!,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
             const SizedBox(height: 30),
 
-            // Editable name field
-            MyTextField(hintText: 'Nome', controller: nameController),
+            MyTextField(
+              controller: nameController,
+              labelText: 'Digite o seu nome',
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 10),
 
-            // Curso
-            MyTextField(hintText: 'Curso', controller: cursoController),
-            const SizedBox(height: 10),
+            MyDropdown<String>(
+              labelText: 'Selecione o seu curso',
+              value: profile.curso ?? 'none',
+              items: [
+                DropdownMenuItem(
+                  value: 'none',
+                  child: Text('Não quero informar'),
+                ),
+                DropdownMenuItem(
+                  value: 'ADS',
+                  child: Text('Análise e Desenvolvimento de Sistemas'),
+                ),
+                DropdownMenuItem(
+                  value: 'EA',
+                  child: Text('Eletrônica Automotiva'),
+                ),
+                DropdownMenuItem(
+                  value: 'GA',
+                  child: Text('Gestão de Qualidade'),
+                ),
+                DropdownMenuItem(value: 'LG', child: Text('Logística')),
+                DropdownMenuItem(
+                  value: 'MA',
+                  child: Text('Manufatura Avançada'),
+                ),
+                DropdownMenuItem(
+                  value: 'MAE',
+                  child: Text('Manutenção de Aeronaves'),
+                ),
+                DropdownMenuItem(value: 'PO', child: Text('Polímeros')),
+                DropdownMenuItem(
+                  value: 'PM',
+                  child: Text('Processos Metalúrgicos'),
+                ),
+                DropdownMenuItem(
+                  value: 'PMC',
+                  child: Text('Processos Mecânicos'),
+                ),
+                DropdownMenuItem(
+                  value: 'SB',
+                  child: Text('Sistemas Biomédicos'),
+                ),
+              ],
+              onChanged: (newValue) {
+                setState(() {
+                  profile = profile.copyWith(curso: newValue);
+                });
+              },
+            ),
 
-            // Carro
-            MyTextField(hintText: 'Carro', controller: carroController),
+            MyTextField(
+              controller: carroController,
+              labelText: 'Informe a placa do seu carro (opcional)',
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 30),
 
-            ElevatedButton(
-              onPressed: saveChanges,
-              child: const Text('Salvar Alterações'),
-            ),
+            MyButton(text: 'Salvar Alterações', onTap: saveProfile),
           ],
         ),
       ),

@@ -30,26 +30,3 @@ class MyButton extends StatelessWidget {
     );
   }
 }
-
-/* import 'package:flutter/material.dart';
-
-class MyButton extends StatelessWidget {
-  final String text;
-  final VoidCallback onPressed;
-  final bool isLoading;
-
-  const MyButton({
-    super.key,
-    required this.text,
-    required this.onPressed,
-    this.isLoading = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: isLoading ? null : onPressed,
-      child: isLoading ? const CircularProgressIndicator() : Text(text),
-    );
-  }
-} */

@@ -25,14 +25,7 @@ class UserTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            CircleAvatar(
-              radius: 24,
-              backgroundImage:
-                  photoUrl.isNotEmpty
-                      ? NetworkImage(photoUrl)
-                      : const AssetImage('assets/images/default_pp.png')
-                          as ImageProvider,
-            ),
+            CircleAvatar(radius: 24, backgroundImage: NetworkImage(photoUrl)),
             const SizedBox(width: 12),
             Text(email, style: const TextStyle(fontSize: 16)),
           ],

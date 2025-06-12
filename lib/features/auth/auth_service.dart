@@ -57,6 +57,7 @@ class AuthService {
       _firestore.collection('users').doc(userCredential.user!.uid).set({
         'uid': userCredential.user!.uid,
         'email': email,
+        'photoUrl': 'https://file.garden/aEmNcGK7YhOgwAiE/default_pp.png',
       });
 
       await userCredential.user?.sendEmailVerification();

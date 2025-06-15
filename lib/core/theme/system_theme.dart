@@ -7,4 +7,7 @@ ThemeData systemTheme = ThemeData(
     secondary: const Color.fromARGB(255, 252, 187, 187),
     tertiary: Colors.white,
   ),
+  appBarTheme: AppBarTheme(
+    titleTextStyle: TextStyle(fontWeight: FontWeight.bold),
+  ),
 );

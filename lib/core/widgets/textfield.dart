@@ -29,8 +29,11 @@ class MyTextField extends StatelessWidget {
           labelStyle: TextStyle(color: Theme.of(context).colorScheme.primary),
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(
-              color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).colorScheme.secondary.withAlpha(150),
             ),
+          ),
+          disabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.transparent),
           ),
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(
@@ -45,7 +48,7 @@ class MyTextField extends StatelessWidget {
           fillColor:
               enabled
                   ? Theme.of(context).colorScheme.primary.withAlpha(10)
-                  : Theme.of(context).colorScheme.onSurface.withAlpha(17),
+                  : Theme.of(context).colorScheme.onSurface.withAlpha(18),
         ),
       ),
     );

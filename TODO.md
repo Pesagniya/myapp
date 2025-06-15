@@ -1,4 +1,7 @@
-reenviar email na tela de signup
+reenviar email na tela de signup,
+usb
+https://stackoverflow.com/questions/79102777/how-to-resolve-source-value-8-is-obsolete-warning-in-android-studio
+stylize 2nd textfield
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:myapp/features/profile/profile_service.dart';

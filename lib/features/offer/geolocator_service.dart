@@ -37,17 +37,14 @@ class LocationService {
   }
 
   /// Converts coordinates to a readable address
-  Future<String?> getAddress(Position position) async {
+  Future<String?> getAddress(double lat, lng) async {
     await setLocaleIdentifier('pt_BR');
-    List<Placemark> placemarks = await placemarkFromCoordinates(
-      position.latitude,
-      position.longitude,
-    );
+    List<Placemark> placemarks = await placemarkFromCoordinates(lat, lng);
 
     if (placemarks.isNotEmpty) {
       final p = placemarks.first;
 
-      return "${p.street}, ${p.subLocality}";
+      return "${p.street}, ${p.subLocality}, ${p.subAdministrativeArea}";
     }
 
     return null;
@@ -57,7 +54,7 @@ class LocationService {
     final position = await getCurrentCoordinates();
 
     if (position != null) {
-      return await getAddress(position);
+      return await getAddress(position.latitude, position.longitude);
     }
     return null;
   }

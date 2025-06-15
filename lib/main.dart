@@ -32,6 +32,7 @@ class MyApp extends StatelessWidget {
                 titleTextStyle: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
+                  color: Colors.black,
                 ),
               ),
             ),
@@ -39,6 +40,13 @@ class MyApp extends StatelessWidget {
               colorScheme: ColorScheme.fromSeed(
                 brightness: Brightness.dark,
                 seedColor: Colors.orange,
+              ),
+              appBarTheme: AppBarTheme(
+                titleTextStyle: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Colors.white,
+                ),
               ),
             ),
             home: const AuthGate(),

@@ -1,9 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:myapp/core/widgets/radio.dart';
 import 'package:myapp/core/widgets/textfield.dart';
 import 'package:myapp/features/offer/geolocator_service.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:myapp/features/offer/info_ride.dart';
+import 'package:myapp/features/offer/map_widget.dart';
+import 'package:myapp/core/widgets/next.dart';
+import 'package:myapp/features/shared/ride_model.dart';
 
 enum RideDirection { fromFatec, toFatec }
 
@@ -21,8 +26,39 @@ class _PostRidesScreenState extends State<PostRidesScreen> {
   RideDirection selectedDirection = RideDirection.toFatec;
   bool isLoading = false;
 
+  List<String> suggestions = [];
+  Timer? _debounce;
+
   // Default (FATEC Sorocaba)
   LatLng mapCenter = LatLng(-23.4827, -47.4260);
+
+  void onUserInput(String input) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () async {
+      if (input.isNotEmpty) {
+        final results = await locationService.getAddressSuggestions(input);
+        setState(() => suggestions = results);
+      } else {
+        setState(() => suggestions = []);
+      }
+    });
+  }
+
+  void handleDirectionChange(RideDirection val) {
+    setState(() {
+      selectedDirection = val;
+      userLocationController.clear();
+    });
+  }
+
+  Future<void> drawRoute() async {}
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    userLocationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,20 +76,21 @@ class _PostRidesScreenState extends State<PostRidesScreen> {
                   CustomRadioButton<RideDirection>(
                     value: RideDirection.toFatec,
                     groupValue: selectedDirection,
-                    onChanged: (val) => setState(() => selectedDirection = val),
+                    onChanged: handleDirectionChange,
                     label: 'Ir para Fatec',
                   ),
                   CustomRadioButton<RideDirection>(
                     value: RideDirection.fromFatec,
                     groupValue: selectedDirection,
-                    onChanged: (val) => setState(() => selectedDirection = val),
+                    onChanged: handleDirectionChange,
                     label: 'Sair da Fatec',
                   ),
                 ],
               ),
 
-              const SizedBox(height: 60),
+              const SizedBox(height: 70),
 
+              //traject image asset and input fields
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -87,48 +124,80 @@ class _PostRidesScreenState extends State<PostRidesScreen> {
                   ),
                 ],
               ),
+              // map and next button
               Row(
                 children: [
                   Expanded(
                     child: Container(
-                      height: 400,
+                      height: 420,
                       width: double.infinity,
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey),
                       ),
-                      child: FlutterMap(
-                        options: MapOptions(
-                          initialCenter: mapCenter,
-                          onTap: (tapPosition, point) {
-                            setState(() async {
-                              mapCenter = point;
-                              // update text field with tapped coordinates or address
-                              userLocationController.text =
-                                  (await locationService.getAddress(
-                                    point.latitude,
-                                    point.longitude,
-                                  ))!;
-                            });
-                          },
-                        ),
+                      child: Stack(
                         children: [
-                          TileLayer(
-                            urlTemplate:
-                                'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                          SelectableMap(
+                            center: mapCenter,
+                            onTap: (point) async {
+                              setState(() {
+                                mapCenter = point;
+                              });
+                              userLocationController.text =
+                                  (await locationService
+                                      .getAddressFromCoordinates(
+                                        point.latitude,
+                                        point.longitude,
+                                      ))!;
+                            },
                           ),
-                          MarkerLayer(
-                            markers: [
-                              Marker(
-                                width: 40,
-                                height: 40,
-                                point: mapCenter,
-                                child: const Icon(
-                                  Icons.location_searching,
-                                  color: Colors.red,
-                                  size: 30,
-                                ),
-                              ),
-                            ],
+                          Positioned(
+                            right: 8,
+                            child: NextButton(
+                              onPressed: () {
+                                if (userLocationController.text.isEmpty) {
+                                  showDialog(
+                                    context: context,
+                                    builder:
+                                        (context) => AlertDialog(
+                                          title: const Text(
+                                            'Endereço não informado',
+                                          ),
+                                          content: const Text(
+                                            'Por favor, insira sua localização antes de continuar.',
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed:
+                                                  () => Navigator.pop(context),
+                                              child: const Text('OK'),
+                                            ),
+                                          ],
+                                        ),
+                                  );
+                                  return;
+                                }
+
+                                final rideData = RideData(
+                                  start:
+                                      selectedDirection == RideDirection.toFatec
+                                          ? userLocationController.text
+                                          : "FATEC Sorocaba",
+                                  finish:
+                                      selectedDirection == RideDirection.toFatec
+                                          ? "FATEC Sorocaba"
+                                          : userLocationController.text,
+                                );
+
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) =>
+                                            InfoRide(rideData: rideData),
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                         ],
                       ),
@@ -145,17 +214,32 @@ class _PostRidesScreenState extends State<PostRidesScreen> {
 
   Widget _buildDepartureField() {
     if (selectedDirection == RideDirection.toFatec) {
-      return MyTextField(labelText: 'De:', controller: userLocationController);
+      return Column(
+        children: [
+          MyTextField(
+            controller: userLocationController,
+            onChanged: onUserInput,
+            labelText: 'De:',
+          ),
+          _buildSuggestionList(),
+        ],
+      );
     } else {
       return const MyTextField(labelText: 'De: FATEC Sorocaba', enabled: false);
     }
   }
 
   Widget _buildArrivalField() {
-    if (selectedDirection != RideDirection.toFatec) {
-      return MyTextField(
-        labelText: 'Para:',
-        controller: userLocationController,
+    if (selectedDirection == RideDirection.fromFatec) {
+      return Column(
+        children: [
+          MyTextField(
+            controller: userLocationController,
+            onChanged: onUserInput,
+            labelText: 'Para:',
+          ),
+          _buildSuggestionList(),
+        ],
       );
     } else {
       return const MyTextField(
@@ -174,10 +258,26 @@ class _PostRidesScreenState extends State<PostRidesScreen> {
                 ? null
                 : () async {
                   setState(() => isLoading = true);
-                  final address = await locationService.getCurrentAddress();
+
+                  final position =
+                      await locationService.getCurrentCoordinates();
+
                   setState(() => isLoading = false);
-                  if (address != null) {
-                    userLocationController.text = address;
+
+                  if (position != null) {
+                    final address = await locationService
+                        .getAddressFromCoordinates(
+                          position.latitude,
+                          position.longitude,
+                        );
+
+                    if (address != null) {
+                      userLocationController.text = address;
+                    }
+
+                    setState(() {
+                      mapCenter = LatLng(position.latitude, position.longitude);
+                    });
                   }
                 },
         child: Row(
@@ -198,107 +298,30 @@ class _PostRidesScreenState extends State<PostRidesScreen> {
       ),
     );
   }
-}
 
+  Widget _buildSuggestionList() {
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: suggestions.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(suggestions[index]),
+          onTap: () async {
+            final selectedAddress = suggestions[index];
+            userLocationController.text = selectedAddress;
+            setState(() => suggestions = []);
 
-/* without fixed textfield
-import 'package:flutter/material.dart';
-import 'package:myapp/core/widgets/textfield.dart';
-import 'package:myapp/features/offer/geolocator_service.dart';
-
-class PostRidesScreen extends StatefulWidget {
-  PostRidesScreen({super.key});
-
-  @override
-  State<PostRidesScreen> createState() => _PostRidesScreenState();
-}
-
-class _PostRidesScreenState extends State<PostRidesScreen> {
-  final TextEditingController firstController = TextEditingController();
-  final LocationService locationService = LocationService();
-
-  bool isLoading = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Qual será o seu trajeto?')),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image
-            Container(
-              margin: const EdgeInsets.only(top: 16),
-              width: 30,
-              height: 135,
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/traject.png'),
-                ),
-              ),
-            ),
-            const SizedBox(width: 3),
-
-            // Text Fields
-            Expanded(
-              flex: 4,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  MyTextField(labelText: 'De:', controller: firstController),
-                  const SizedBox(height: 8),
-
-                  // "Utilizar localização atual?" com loading indicator
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                    child: GestureDetector(
-                      onTap:
-                          isLoading
-                              ? null
-                              : () async {
-                                setState(() => isLoading = true);
-                                final address =
-                                    await locationService.getCurrentAddress();
-                                setState(() => isLoading = false);
-
-                                if (address != null) {
-                                  firstController.text = address;
-                                }
-                              },
-                      child: Row(
-                        children: [
-                          Text(
-                            'Utilizar localização atual?',
-                            style: const TextStyle(fontSize: 10),
-                          ),
-                          const SizedBox(width: 5),
-                          if (isLoading)
-                            const SizedBox(
-                              width: 10,
-                              height: 1,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 1.5,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-                  MyTextField(
-                    labelText: 'Para: FATEC Sorocaba',
-                    enabled: false,
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
+            final coords = await locationService.getCoordinatesFromAddress(
+              selectedAddress,
+            );
+            if (coords != null) {
+              setState(() {
+                mapCenter = coords;
+              });
+            }
+          },
+        );
+      },
     );
   }
 }
-*/

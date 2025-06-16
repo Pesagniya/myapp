@@ -1,5 +1,8 @@
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:latlong2/latlong.dart';
 
 class LocationService {
   /// Checks and requests location permissions
@@ -17,6 +20,75 @@ class LocationService {
       return false;
     }
     return true;
+  }
+
+  Future<List<String>> getAddressSuggestions(String input) async {
+    final uri = Uri.parse(
+      'https://nominatim.openstreetmap.org/search'
+      '?q=$input, São Paulo, Brazil'
+      '&format=json'
+      '&addressdetails=1'
+      '&limit=5',
+    );
+
+    final response = await http.get(
+      uri,
+      headers: {
+        'User-Agent': 'myapp/1.0', // required by Nominatim's policy
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+
+      final uniqueAddresses = <String>{};
+      final List<String> filteredSuggestions = [];
+
+      for (final item in data) {
+        final address = item['address'];
+        final street = address['road'] ?? '';
+        final district = address['neighbourhood'] ?? '';
+        final city = address['city'] ?? '';
+        final fullAddress = [
+          street,
+          district,
+          city,
+        ].where((part) => part.isNotEmpty).join(', ');
+
+        if (!uniqueAddresses.contains(fullAddress)) {
+          uniqueAddresses.add(fullAddress);
+          filteredSuggestions.add(fullAddress);
+        }
+      }
+
+      return filteredSuggestions;
+    } else {
+      return [];
+    }
+  }
+
+  Future<LatLng?> getCoordinatesFromAddress(String address) async {
+    final uri = Uri.parse(
+      'https://nominatim.openstreetmap.org/search'
+      '?q=$address'
+      '&format=json'
+      '&limit=1',
+    );
+
+    final response = await http.get(uri, headers: {'User-Agent': 'myapp/1.0'});
+
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+      if (data.isNotEmpty) {
+        final firstResult = data[0];
+        final lat = double.tryParse(firstResult['lat']);
+        final lon = double.tryParse(firstResult['lon']);
+        if (lat != null && lon != null) {
+          return LatLng(lat, lon);
+        }
+      }
+    }
+    return null;
   }
 
   Future<bool> test() async {
@@ -37,7 +109,7 @@ class LocationService {
   }
 
   /// Converts coordinates to a readable address
-  Future<String?> getAddress(double lat, lng) async {
+  Future<String?> getAddressFromCoordinates(double lat, lng) async {
     await setLocaleIdentifier('pt_BR');
     List<Placemark> placemarks = await placemarkFromCoordinates(lat, lng);
 
@@ -54,7 +126,10 @@ class LocationService {
     final position = await getCurrentCoordinates();
 
     if (position != null) {
-      return await getAddress(position.latitude, position.longitude);
+      return await getAddressFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
     }
     return null;
   }

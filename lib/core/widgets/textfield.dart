@@ -6,6 +6,9 @@ class MyTextField extends StatelessWidget {
   final TextEditingController? controller;
   final TextAlign textAlign;
   final bool enabled;
+  final ValueChanged<String>? onChanged;
+  final VoidCallback? onTap;
+  final TextInputType? keyboardType; // <-- add this
 
   const MyTextField({
     super.key,
@@ -14,6 +17,9 @@ class MyTextField extends StatelessWidget {
     this.textAlign = TextAlign.start,
     this.controller,
     this.enabled = true,
+    this.onChanged,
+    this.onTap,
+    this.keyboardType, // <-- add to constructor
   });
 
   @override
@@ -24,6 +30,9 @@ class MyTextField extends StatelessWidget {
         controller: controller,
         textAlign: textAlign,
         enabled: enabled,
+        onChanged: onChanged,
+        keyboardType: keyboardType,
+        onTap: onTap,
         decoration: InputDecoration(
           labelText: labelText,
           labelStyle: TextStyle(color: Theme.of(context).colorScheme.primary),

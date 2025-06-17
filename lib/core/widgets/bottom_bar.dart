@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/features/chat/chat.dart';
-import 'package:myapp/features/offer/post_ride.dart';
+import 'package:myapp/features/offer/offer_ride.dart';
 import 'package:myapp/features/profile/your_profile.dart';
 import 'package:myapp/features/rides/your_rides.dart';
 import 'package:myapp/features/search/search_ride.dart';

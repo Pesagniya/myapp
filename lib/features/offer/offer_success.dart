@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/core/widgets/button.dart'; // Import your custom button
+import 'package:myapp/core/widgets/bottom_bar.dart';
+import 'package:myapp/core/widgets/button.dart';
 
 class PostSuccessPage extends StatelessWidget {
   const PostSuccessPage({super.key});
@@ -8,16 +9,14 @@ class PostSuccessPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sucesso'),
         automaticallyImplyLeading: false, // No back button
       ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.only(bottom: 10),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Asset image placeholder
               Image.asset(
                 'assets/images/success.png',
                 width: 120,
@@ -32,11 +31,16 @@ class PostSuccessPage extends StatelessWidget {
               ),
               const SizedBox(height: 40),
 
-              // Your custom MyButton widget
               MyButton(
                 text: 'Voltar para a página inicial',
                 onTap: () {
-                  Navigator.of(context).popUntil((route) => route.isFirst);
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const Material3BottomNav(),
+                    ),
+                    (route) => false,
+                  );
                 },
               ),
             ],

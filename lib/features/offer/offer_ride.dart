@@ -5,7 +5,7 @@ import 'package:myapp/core/widgets/radio.dart';
 import 'package:myapp/core/widgets/textfield.dart';
 import 'package:myapp/features/offer/geolocator_service.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:myapp/features/offer/info_ride.dart';
+import 'package:myapp/features/offer/offer_info.dart';
 import 'package:myapp/features/offer/map_widget.dart';
 import 'package:myapp/core/widgets/next.dart';
 import 'package:myapp/features/shared/ride_model.dart';
@@ -49,6 +49,44 @@ class _PostRidesScreenState extends State<PostRidesScreen> {
       selectedDirection = val;
       userLocationController.clear();
     });
+  }
+
+  void onButtonPressed() {
+    if (userLocationController.text.isEmpty) {
+      showDialog(
+        context: context,
+        builder:
+            (context) => AlertDialog(
+              title: const Text('Endereço não informado'),
+              content: const Text(
+                'Por favor, insira sua localização antes de continuar.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+      );
+      return;
+    }
+
+    final rideData = RideData(
+      start:
+          selectedDirection == RideDirection.toFatec
+              ? userLocationController.text
+              : "FATEC Sorocaba",
+      finish:
+          selectedDirection == RideDirection.toFatec
+              ? "FATEC Sorocaba"
+              : userLocationController.text,
+    );
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => InfoRide(rideData: rideData)),
+    );
   }
 
   Future<void> drawRoute() async {}
@@ -154,48 +192,7 @@ class _PostRidesScreenState extends State<PostRidesScreen> {
                             right: 8,
                             child: NextButton(
                               onPressed: () {
-                                if (userLocationController.text.isEmpty) {
-                                  showDialog(
-                                    context: context,
-                                    builder:
-                                        (context) => AlertDialog(
-                                          title: const Text(
-                                            'Endereço não informado',
-                                          ),
-                                          content: const Text(
-                                            'Por favor, insira sua localização antes de continuar.',
-                                          ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed:
-                                                  () => Navigator.pop(context),
-                                              child: const Text('OK'),
-                                            ),
-                                          ],
-                                        ),
-                                  );
-                                  return;
-                                }
-
-                                final rideData = RideData(
-                                  start:
-                                      selectedDirection == RideDirection.toFatec
-                                          ? userLocationController.text
-                                          : "FATEC Sorocaba",
-                                  finish:
-                                      selectedDirection == RideDirection.toFatec
-                                          ? "FATEC Sorocaba"
-                                          : userLocationController.text,
-                                );
-
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) =>
-                                            InfoRide(rideData: rideData),
-                                  ),
-                                );
+                                onButtonPressed();
                               },
                             ),
                           ),

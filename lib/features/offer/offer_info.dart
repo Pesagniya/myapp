@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/core/widgets/button.dart';
 import 'package:myapp/core/widgets/textfield.dart';
-import 'package:myapp/features/offer/post_success.dart';
+import 'package:myapp/features/offer/offer_success.dart';
 import 'package:myapp/features/offer/ride_service.dart';
 import 'package:myapp/features/shared/ride_model.dart';
 import 'package:board_datetime_picker/board_datetime_picker.dart';
@@ -71,6 +71,13 @@ class _InfoRideState extends State<InfoRide> {
 
   Future<void> _onButtonPressed() async {
     final String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+
+    if (dateController.text.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Escolha uma data válida')));
+      return;
+    }
 
     final updatedRide = widget.rideData.copyWith(
       driverId: currentUserId,

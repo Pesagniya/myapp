@@ -36,9 +36,7 @@ class PostSuccessPage extends StatelessWidget {
                 onTap: () {
                   Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => const Material3BottomNav(),
-                    ),
+                    MaterialPageRoute(builder: (_) => const BottomNav()),
                     (route) => false,
                   );
                 },

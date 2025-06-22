@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:myapp/core/widgets/radio.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:myapp/core/widgets/textfield.dart';
 import 'package:myapp/features/offer/geolocator_service.dart';
-import 'package:latlong2/latlong.dart';
-import 'package:myapp/features/offer/offer_info.dart';
-import 'package:myapp/features/offer/map_widget.dart';
-import 'package:myapp/core/widgets/next.dart';
+import 'package:myapp/features/offer/offer_rideinfo.dart';
+import 'package:myapp/features/offer/w_map.dart';
+import 'package:myapp/features/offer/w_next.dart';
 import 'package:myapp/features/shared/ride_model.dart';
+import 'package:myapp/features/shared/w_radio.dart';
 
 enum RideDirection { fromFatec, toFatec }
 
@@ -33,6 +33,7 @@ class _PostRidesScreenState extends State<PostRidesScreen> {
   LatLng mapCenter = LatLng(-23.4827, -47.4260);
 
   void onUserInput(String input) {
+    // Adds timer to http call for address
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () async {
       if (input.isNotEmpty) {
@@ -45,6 +46,7 @@ class _PostRidesScreenState extends State<PostRidesScreen> {
   }
 
   void handleDirectionChange(RideDirection val) {
+    // Clear controller onchange
     setState(() {
       selectedDirection = val;
       userLocationController.clear();
@@ -83,13 +85,16 @@ class _PostRidesScreenState extends State<PostRidesScreen> {
               : userLocationController.text,
     );
 
+    // Pass start and end to next page offer_info
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => InfoRide(rideData: rideData)),
     );
   }
 
-  Future<void> drawRoute() async {}
+  Future<void> drawRoute() async {
+    // TODO : show route
+  }
 
   @override
   void dispose() {
@@ -128,7 +133,7 @@ class _PostRidesScreenState extends State<PostRidesScreen> {
 
               const SizedBox(height: 70),
 
-              //traject image asset and input fields
+              // Traject asset image and input fields
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -162,7 +167,7 @@ class _PostRidesScreenState extends State<PostRidesScreen> {
                   ),
                 ],
               ),
-              // map and next button
+              // Map and next button
               Row(
                 children: [
                   Expanded(
@@ -180,6 +185,7 @@ class _PostRidesScreenState extends State<PostRidesScreen> {
                               setState(() {
                                 mapCenter = point;
                               });
+                              // Changes controller text to point in map
                               userLocationController.text =
                                   (await locationService
                                       .getAddressFromCoordinates(
@@ -311,6 +317,7 @@ class _PostRidesScreenState extends State<PostRidesScreen> {
             final coords = await locationService.getCoordinatesFromAddress(
               selectedAddress,
             );
+            // Changes map center to chosen address from list
             if (coords != null) {
               setState(() {
                 mapCenter = coords;

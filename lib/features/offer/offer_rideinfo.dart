@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:myapp/core/widgets/button.dart';
 import 'package:myapp/core/widgets/textfield.dart';
-import 'package:myapp/features/offer/offer_success.dart';
-import 'package:myapp/features/offer/ride_service.dart';
-import 'package:myapp/features/shared/ride_model.dart';
 import 'package:board_datetime_picker/board_datetime_picker.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:myapp/features/offer/offer_success.dart';
+import 'package:myapp/features/offer/offer_service.dart';
+import 'package:myapp/features/shared/ride_model.dart';
 
 class InfoRide extends StatefulWidget {
   final RideData rideData;
@@ -19,7 +19,9 @@ class InfoRide extends StatefulWidget {
 class _InfoRideState extends State<InfoRide> {
   DateTime selectedDateTime = DateTime.now();
   final TextEditingController dateController = TextEditingController();
+  final TextEditingController priceController = TextEditingController();
 
+  // Default 1
   int seatCount = 1;
 
   final RideService rideService = RideService();
@@ -27,6 +29,7 @@ class _InfoRideState extends State<InfoRide> {
   @override
   void dispose() {
     dateController.dispose();
+    priceController.dispose();
     super.dispose();
   }
 
@@ -59,7 +62,7 @@ class _InfoRideState extends State<InfoRide> {
 
   void _incrementSeat() {
     setState(() {
-      if (seatCount < 5) seatCount++;
+      if (seatCount < 4) seatCount++;
     });
   }
 
@@ -70,19 +73,24 @@ class _InfoRideState extends State<InfoRide> {
   }
 
   Future<void> _onButtonPressed() async {
-    final String currentUserId = FirebaseAuth.instance.currentUser!.uid;
+    final price = double.tryParse(priceController.text.trim());
 
-    if (dateController.text.isEmpty) {
+    if (dateController.text.isEmpty ||
+        priceController.text.isEmpty ||
+        price == null) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Escolha uma data válida')));
+      ).showSnackBar(SnackBar(content: Text('Valide as suas informações')));
       return;
     }
 
     final updatedRide = widget.rideData.copyWith(
-      driverId: currentUserId,
-      passengers: seatCount,
+      driverId: FirebaseAuth.instance.currentUser!.uid,
+      email: FirebaseAuth.instance.currentUser!.email,
+      photoURL: await rideService.getPhoto(),
+      seats: seatCount,
       departure: selectedDateTime,
+      price: price,
     );
 
     try {
@@ -153,7 +161,7 @@ class _InfoRideState extends State<InfoRide> {
                     onPressed: seatCount < 5 ? _incrementSeat : null,
                     icon: const Icon(Icons.add_circle_outline),
                     color:
-                        seatCount < 5
+                        seatCount < 4
                             ? Theme.of(context).colorScheme.primary
                             : Colors.grey,
                     iconSize: 30,
@@ -161,6 +169,20 @@ class _InfoRideState extends State<InfoRide> {
                 ],
               ),
             ),
+            const SizedBox(height: 40),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 25),
+              child: Text(
+                'Qual o preço por passageiro?',
+                style: const TextStyle(fontSize: 16),
+              ),
+            ),
+            MyTextField(
+              labelText: 'R\$',
+              controller: priceController,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
+            ),
+
             const Spacer(),
             MyButton(text: 'Continuar', onTap: _onButtonPressed),
             const SizedBox(height: 20),
@@ -170,6 +192,7 @@ class _InfoRideState extends State<InfoRide> {
     );
   }
 
+  // D/M/Y H:M
   String _formatDateTime(DateTime dt) {
     return '${dt.day.toString().padLeft(2, '0')}/'
         '${dt.month.toString().padLeft(2, '0')}/'

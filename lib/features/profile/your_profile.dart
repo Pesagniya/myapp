@@ -3,7 +3,7 @@ import 'package:myapp/features/profile/profile_model.dart';
 import 'package:myapp/features/profile/profile_service.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/core/widgets/button.dart';
-import 'package:myapp/core/widgets/dropdown.dart';
+import 'package:myapp/features/profile/dropdown.dart';
 import 'package:myapp/core/widgets/textfield.dart';
 
 class ProfileScreen extends StatefulWidget {

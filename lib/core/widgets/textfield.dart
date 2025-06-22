@@ -8,7 +8,7 @@ class MyTextField extends StatelessWidget {
   final bool enabled;
   final ValueChanged<String>? onChanged;
   final VoidCallback? onTap;
-  final TextInputType? keyboardType; // <-- add this
+  final TextInputType? keyboardType;
 
   const MyTextField({
     super.key,
@@ -19,7 +19,7 @@ class MyTextField extends StatelessWidget {
     this.enabled = true,
     this.onChanged,
     this.onTap,
-    this.keyboardType, // <-- add to constructor
+    this.keyboardType,
   });
 
   @override

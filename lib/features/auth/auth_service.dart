@@ -13,25 +13,26 @@ class AuthService {
         password: data.password,
       );
 
-      // Save user data to Firestore
-      _firestore.collection('users').doc(userCredential.user!.uid).set({
-        'uid': userCredential.user!.uid,
-        'email': data.name,
-      });
-
       final user = userCredential.user;
       if (user == null) {
         return 'Erro ao autenticar. Tente novamente.';
       }
 
-      /* TODO: temporarily disabled
+      // Save user data to Firestore
+      _firestore.collection('users').doc(userCredential.user!.uid).set({
+        'uid': userCredential.user!.uid,
+        'email': data.name,
+        'photoURL':
+            'https://file.garden/aEmNcGK7YhOgwAiE/profile_photos/default_pp.png',
+      });
+
+      /* TODO: remove (fatecride not verified)
       if (!user.emailVerified) {
         await user.sendEmailVerification();
         return 'Email não verificado. Verifique seu email para continuar.';
-      }
-      */
+      }*/
 
-      return null; // Success
+      return null;
     } on FirebaseAuthException catch (e) {
       return _handleFirebaseError(e);
     }
@@ -57,7 +58,8 @@ class AuthService {
       _firestore.collection('users').doc(userCredential.user!.uid).set({
         'uid': userCredential.user!.uid,
         'email': email,
-        'photoUrl': 'https://file.garden/aEmNcGK7YhOgwAiE/default_pp.png',
+        'photoURL':
+            'https://file.garden/aEmNcGK7YhOgwAiE/profile_photos/default_pp.png',
       });
 
       await userCredential.user?.sendEmailVerification();

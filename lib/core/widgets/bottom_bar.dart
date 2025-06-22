@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/features/chat/chat.dart';
-import 'package:myapp/features/offer/offer_ride.dart';
-import 'package:myapp/features/profile/your_profile.dart';
 import 'package:myapp/features/rides/your_rides.dart';
 import 'package:myapp/features/search/search_ride.dart';
+import 'package:myapp/features/offer/offer_ride.dart';
+import 'package:myapp/features/chat/chat.dart';
+import 'package:myapp/features/profile/your_profile.dart';
 
-class Material3BottomNav extends StatefulWidget {
-  const Material3BottomNav({super.key});
+class BottomNav extends StatefulWidget {
+  const BottomNav({super.key});
 
   @override
-  State<Material3BottomNav> createState() => _Material3BottomNavState();
+  State<BottomNav> createState() => _Material3BottomNavState();
 }
 
-class _Material3BottomNavState extends State<Material3BottomNav> {
+class _Material3BottomNavState extends State<BottomNav> {
   int _selectedIndex = 0;
 
   final List _pages = [

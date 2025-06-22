@@ -1,25 +1,45 @@
-import 'package:flutter/material.dart';
+import 'dart:math';
 
-class YourRidesScreen extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:flutter_chat_core/flutter_chat_core.dart';
+import 'package:flutter_chat_ui/flutter_chat_ui.dart';
+
+class YourRidesScreen extends StatefulWidget {
   const YourRidesScreen({super.key});
+
+  @override
+  YourRidesScreenState createState() => YourRidesScreenState();
+}
+
+class YourRidesScreenState extends State<YourRidesScreen> {
+  final _chatController = InMemoryChatController();
+
+  @override
+  void dispose() {
+    _chatController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const SizedBox(height: 20),
-            Text(
-              'Your Rides',
-              style: TextStyle(
-                fontSize: 24,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+      body: Chat(
+        chatController: _chatController,
+        currentUserId: 'user1',
+        onMessageSend: (text) {
+          _chatController.insertMessage(
+            TextMessage(
+              // Better to use UUID or similar for the ID - IDs must be unique
+              id: '${Random().nextInt(1000) + 1}',
+              authorId: 'user1',
+              createdAt: DateTime.now().toUtc(),
+              text: text,
             ),
-          ],
-        ),
+          );
+        },
+        resolveUser: (UserID id) async {
+          return User(id: id, name: 'John Doe');
+        },
       ),
     );
   }

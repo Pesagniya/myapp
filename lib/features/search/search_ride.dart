@@ -3,11 +3,10 @@ import 'dart:async';
 import 'package:board_datetime_picker/board_datetime_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/core/widgets/button.dart';
-import 'package:myapp/core/widgets/radio.dart';
+import 'package:myapp/features/shared/w_radio.dart';
 import 'package:myapp/core/widgets/textfield.dart';
 import 'package:myapp/features/offer/geolocator_service.dart';
-import 'package:myapp/features/offer/offer_info.dart';
-import 'package:myapp/features/shared/ride_model.dart';
+import 'package:myapp/features/search/search_rideresults.dart';
 
 enum RideDirection { fromFatec, toFatec }
 
@@ -29,6 +28,7 @@ class _SearchRidesScreenState extends State<SearchRidesScreen> {
   Timer? _debounce;
 
   void onUserInput(String input) {
+    // Adds timer to http call for address
     if (_debounce?.isActive ?? false) _debounce!.cancel();
     _debounce = Timer(const Duration(milliseconds: 500), () async {
       if (input.isNotEmpty) {
@@ -41,6 +41,7 @@ class _SearchRidesScreenState extends State<SearchRidesScreen> {
   }
 
   void handleDirectionChange(RideDirection val) {
+    // Clear controller onchange
     setState(() {
       selectedDirection = val;
       userLocationController.clear();
@@ -97,20 +98,11 @@ class _SearchRidesScreenState extends State<SearchRidesScreen> {
       return;
     }
 
-    final rideData = RideData(
-      start:
-          selectedDirection == RideDirection.toFatec
-              ? userLocationController.text
-              : "FATEC Sorocaba",
-      finish:
-          selectedDirection == RideDirection.toFatec
-              ? "FATEC Sorocaba"
-              : userLocationController.text,
-    );
+    //TODO : need to calculate carpool route and calculate distance of search user to route
 
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => InfoRide(rideData: rideData)),
+      MaterialPageRoute(builder: (context) => SearchResultsPage()),
     );
   }
 
@@ -158,7 +150,7 @@ class _SearchRidesScreenState extends State<SearchRidesScreen> {
 
             const SizedBox(height: 70),
 
-            //input fields
+            // Input fields
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -190,7 +182,6 @@ class _SearchRidesScreenState extends State<SearchRidesScreen> {
               ],
             ),
 
-            // map and next button
             const Spacer(),
             MyButton(text: 'Continuar', onTap: onButtonPressed),
             const SizedBox(height: 20),
@@ -200,6 +191,7 @@ class _SearchRidesScreenState extends State<SearchRidesScreen> {
     );
   }
 
+  // D/M/Y H:M
   String _formatDateTime(DateTime dt) {
     return '${dt.day.toString().padLeft(2, '0')}/'
         '${dt.month.toString().padLeft(2, '0')}/'

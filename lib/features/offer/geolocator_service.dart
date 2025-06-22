@@ -1,6 +1,7 @@
+import 'dart:convert';
+
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 
@@ -29,12 +30,12 @@ class LocationService {
       '&format=json'
       '&addressdetails=1'
       '&limit=5',
-    );
+    ); // Only SP state
 
     final response = await http.get(
       uri,
       headers: {
-        'User-Agent': 'myapp/1.0', // required by Nominatim's policy
+        'User-Agent': 'myapp/1.0', // Required by Nominatim's policy
       },
     );
 
@@ -54,7 +55,7 @@ class LocationService {
           district,
           city,
         ].where((part) => part.isNotEmpty).join(', ');
-
+        // Removes "duplicated" address (by values not shown)
         if (!uniqueAddresses.contains(fullAddress)) {
           uniqueAddresses.add(fullAddress);
           filteredSuggestions.add(fullAddress);
@@ -91,11 +92,6 @@ class LocationService {
     return null;
   }
 
-  Future<bool> test() async {
-    return true;
-  }
-
-  /// Gets current location
   Future<Position?> getCurrentCoordinates() async {
     if (!await checkLocationPermissions()) return null;
 

@@ -14,9 +14,9 @@ class LoginScreen extends StatelessWidget {
       onLogin: authService.authUser,
       onSignup: authService.signupUser,
       onSubmitAnimationCompleted: () {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => Material3BottomNav()),
-        );
+        Navigator.of(
+          context,
+        ).pushReplacement(MaterialPageRoute(builder: (context) => BottomNav()));
       },
       onRecoverPassword: authService.recoverPassword,
       theme: LoginTheme(logoWidth: 100, primaryColor: Colors.red),

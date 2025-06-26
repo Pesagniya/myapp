@@ -23,6 +23,18 @@ class LocationService {
     return true;
   }
 
+  Future<Position?> getCurrentCoordinates() async {
+    if (!await checkLocationPermissions()) return null;
+
+    LocationSettings locationSettings = const LocationSettings(
+      accuracy: LocationAccuracy.high,
+    );
+
+    return await Geolocator.getCurrentPosition(
+      locationSettings: locationSettings,
+    );
+  }
+
   Future<List<String>> getAddressSuggestions(String input) async {
     final uri = Uri.parse(
       'https://nominatim.openstreetmap.org/search'
@@ -90,18 +102,6 @@ class LocationService {
       }
     }
     return null;
-  }
-
-  Future<Position?> getCurrentCoordinates() async {
-    if (!await checkLocationPermissions()) return null;
-
-    LocationSettings locationSettings = const LocationSettings(
-      accuracy: LocationAccuracy.high,
-    );
-
-    return await Geolocator.getCurrentPosition(
-      locationSettings: locationSettings,
-    );
   }
 
   /// Converts coordinates to a readable address

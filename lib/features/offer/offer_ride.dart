@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:myapp/core/widgets/textfield.dart';
-import 'package:myapp/features/offer/geolocator_service.dart';
+import 'package:myapp/features/shared/geolocator_service.dart';
 import 'package:myapp/features/offer/offer_rideinfo.dart';
 import 'package:myapp/features/offer/w_map.dart';
 import 'package:myapp/features/offer/w_next.dart';

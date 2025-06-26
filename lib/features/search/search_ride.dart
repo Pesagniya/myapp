@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:myapp/core/widgets/button.dart';
 import 'package:myapp/features/shared/w_radio.dart';
 import 'package:myapp/core/widgets/textfield.dart';
-import 'package:myapp/features/offer/geolocator_service.dart';
+import 'package:myapp/features/shared/geolocator_service.dart';
 import 'package:myapp/features/search/search_rideresults.dart';
 
 enum RideDirection { fromFatec, toFatec }
@@ -182,7 +182,6 @@ class _SearchRidesScreenState extends State<SearchRidesScreen> {
               ],
             ),
 
-            const Spacer(),
             MyButton(text: 'Continuar', onTap: onButtonPressed),
             const SizedBox(height: 20),
           ],

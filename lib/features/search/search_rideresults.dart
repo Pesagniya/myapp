@@ -124,7 +124,10 @@ class _SearchResultsPageState extends State<SearchResultsPage> {
 
           if (rides.isEmpty) {
             return const Center(
-              child: Text(':(', style: TextStyle(fontSize: 20)),
+              child: Text(
+                'Tente novamente mais tarde :(',
+                style: TextStyle(fontSize: 20),
+              ),
             );
           }
 

@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 class UserTile extends StatelessWidget {
   final String email;
-  final String photoUrl;
+  final String photoURL;
   final void Function()? onTap;
 
   const UserTile({
     super.key,
     required this.email,
-    required this.photoUrl,
+    required this.photoURL,
     required this.onTap,
   });
 
@@ -25,7 +25,7 @@ class UserTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            CircleAvatar(radius: 24, backgroundImage: NetworkImage(photoUrl)),
+            CircleAvatar(radius: 24, backgroundImage: NetworkImage(photoURL)),
             const SizedBox(width: 12),
             Text(email, style: const TextStyle(fontSize: 16)),
           ],

@@ -18,13 +18,11 @@ class ChatService {
   Future<void> sendMessage(String receiverId, message) async {
     final String currentUserId = _auth.currentUser!.uid;
     final String currentUserEmail = _auth.currentUser!.email!;
-    final String currentUserPhotoURL = _auth.currentUser!.photoURL!;
     final Timestamp timestamp = Timestamp.now();
 
     Message newMessage = Message(
       senderId: currentUserId,
       senderEmail: currentUserEmail,
-      senderPhotoUrl: currentUserPhotoURL,
       receiverId: receiverId,
       content: message,
       timestamp: timestamp,
